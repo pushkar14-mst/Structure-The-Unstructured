@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>File Upload Test</title>
+</head>
+
+<body>
+    <h1>Upload Files</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="files[]" id="fileInput" multiple accept=".wav, .png, .txt"><br><br>
+        <label for="formats[]">Choose formats:</label>
+        <select id="formats" name="formats[]" multiple>
+            <option value="audio">Audio</option>
+            <option value="image">Image</option>
+            <option value="network">Network Log</option>
+        </select><br><br>
+        <input type="submit" value="Upload and Process">
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var form = e.target;
+            var formData = new FormData(form);
+
+            fetch('http://127.0.0.1:5000/process', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    var downloadLink = document.createElement('a');
+                
+                    downloadLink.href = 'http://127.0.0.1:5000/download/' + data.output_filename;
+                    downloadLink.textContent = 'Download CSV file';
+                    downloadLink.setAttribute('download', data.output_filename);
+
+                    document.body.appendChild(downloadLink);
+                    
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
